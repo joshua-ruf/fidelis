@@ -1,0 +1,38 @@
+
+body {
+  background: #BDD5DB; /* light color of fidelis */
+}
+
+.section.sidebar {
+  top: 51px;
+  background-color: rgba(189, 213, 219, 1); /* light color of fidelis */
+  border-right: 0px;
+  padding-right: 1px;
+}
+
+.bg-primary {
+  background-color: rgba(9, 143, 158, 1); /* dark color of fidelis */
+}
+
+.storyboard-nav .sbframelist ul li.active {
+  background-color: rgba(9, 143, 158, 1); /* dark color of fidelis */
+}
+
+.navbar {
+  background-color: rgba(9, 143, 158, 1); /* dark color of fidelis */
+  border-color: #086d78; /* darker than color of fidelis */
+}
+
+.navbar-nav li a:hover, .navbar-nav > .active > a {
+background-color: #086d78 !important; /* darker than color of fidelis */
+}
+
+.nav-tabs-custom > .nav-tabs > li > a,
+.nav-tabs-custom > .nav-tabs > li > a:active {
+  font-weight: 500;
+}
+
+.navbar-logo {
+  margin-top: 4px;
+}
+

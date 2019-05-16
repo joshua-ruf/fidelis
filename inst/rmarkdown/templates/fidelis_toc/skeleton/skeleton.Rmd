@@ -1,0 +1,140 @@
+---
+title: "Fidelis Care"
+author: "Medical Economics"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    template: toc_template.html
+    includes:
+      in_header: favicon.html
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(fidelis)
+```
+
+```{r results='asis'}
+setup2cols(50,50)
+# create two column support, each with 50% width.
+#later call begin_left() ... end_left() to add something to a specific column
+```
+This is text
+
+# A
+
+## AA {.tabset .tabset-pills}
+
+### Plot 1
+```{r, out.width="60%"}
+plot(1:50)
+```
+
+### Plot 2
+```{r, out.width="60%"}
+plot(50:1)
+```
+
+## AAA
+
+```{r, results='asis'}
+begin_left()
+  cat('This text should be on the left')
+br()
+  plot(1:50)
+end_left()
+
+begin_right()
+  cat('This text should be on the right')
+br()
+  plot(50:1)
+end_right()
+
+```
+
+# B
+
+## BB 
+
+```{r}
+plot((1:50)^-1)
+```
+
+## BBB
+
+```{r}
+plot((1:50)^-2)
+```
+
+# C
+
+## CC 
+
+```{r}
+plot((1:50)^-(1/2))
+```
+
+## CCC
+
+```{r}
+plot((1:50)^(1/2))
+```
+
+# A
+
+## AA 
+
+```{r}
+plot(1:50)
+```
+
+## AAA
+
+```{r}
+plot((1:50)^2)
+```
+
+# B
+
+## BB 
+
+```{r}
+plot((1:50)^-1)
+```
+
+## BBB
+
+```{r}
+plot((1:50)^-2)
+```
+
+# C
+
+## CC 
+
+```{r}
+plot((1:50)^-(1/2))
+```
+
+## CCC
+
+```{r}
+plot((1:50)^(1/2))
+```
+
+<!-- since toc_height is set to 2, three hashtags won't show up in toc -->
+### Four<br>
+This is text!
+
+
+<!-- ### <a href="#top">Back to top</a> -->
+<!-- adds a button that takes you to the top of the page -->
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+<!-- removes white space at the bottom of the page -->

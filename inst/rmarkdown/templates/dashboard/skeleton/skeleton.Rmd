@@ -1,0 +1,176 @@
+---
+title: "Data Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    self_contained: true
+    orientation: rows
+    logo: fidelis_logo36.png
+    favicon: fidelis_logo.png
+    css: fidelis_colors.css
+params:
+  id:
+    value: ''
+    label: "Username:"
+    input: password
+  pw:
+    value: ''
+    label: "Password:"
+    input: password
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(data.table)
+library(foreach)
+library(formattable)
+library(knitr)
+library(kableExtra)
+library(fidelis)
+opts_chunk$set(include = F, echo = F, warning = F, error = F, message = F)
+
+# Uncomment out this code if you'd like to access greenplum.
+# Then use fidelis::query() to pull data:
+#
+# conn <- RPostgreSQL::dbConnect(
+#   DBI::dbDriver('PostgreSQL'),
+#   dbname = 'fidprd',
+#   host = 'greenplum.fideliscare.org',
+#   port = 5432,
+#   user = params$id,
+#   password = params$pw
+# )
+
+```
+
+
+```{r}
+
+df <- data.table()
+
+for (i in LETTERS[1:4]){
+  
+  df <- rbind(df,
+              data.table(time = 1:24,
+                 product = i,
+                 one = rnorm(24),
+                 two = runif(24, 100, 200),
+                 three = sample(1000:100000, 24, replace = T))
+              )
+
+}
+
+
+df[,`:=`(one = percent(one),
+         two = currency(two),
+         three = comma.k(three, digits = 1))]
+
+```
+
+```{r}
+
+products <- unique(df$product)
+
+display_table <- function(i){
+  
+  D <- copy(df[product == i])
+  
+  D[, `:=`(product = NULL)] %>%
+  kable(format = 'html',
+        escape = F,
+        table.attr = "style = \"color: black;\"",
+        align = c('l', rep('r', ncol(D)-1))) %>%
+  kable_styling(bootstrap_options = c('hover', 'condensed'),
+                protect_latex = F) %>%
+  column_spec(1, bold = T) %>%
+  htmltools::knit_print.html()
+
+}
+
+
+plot1 <- function(i){
+  
+  ggplot(df[product == i], aes(x = time, y = one)) +
+    geom_line()
+  
+}
+  
+plot2 <- function(i){
+  
+  ggplot(df[product == i], aes(x = time, y = two)) +
+    geom_point()
+  
+}
+  
+plot3 <- function(i){
+  
+  ggplot(df[product == i], aes(x = time, y = three)) +
+    geom_point() +
+    geom_line()
+  
+}
+
+```
+
+Sidebar {.sidebar}
+============================================
+
+#### **Fidelis Care**
+##### **Dates of Service: first_effper to final_effper**
+##### **Paid Through: sometime!**
+
+##### **Notes: These are Notes**
+
+`r paste(rep('<br>', 32), collapse = '')`
+
+**Medical Economics**<br>
+**`r usdate(Sys.Date())`**
+
+
+
+```{r, include = T, results='asis'}
+for(i in products){
+  cat('  \n')
+  cat(i)
+  cat('  \n')
+  cat('=============================')
+  cat('  \n')
+  cat('  \n')
+  cat('Row {data-height=450}')
+  cat('  \n')
+  cat('-----------------------------')
+  cat('  \n')
+  cat('  \n')
+  cat('### One')
+  cat('  \n')
+  cat('  \n')
+  plot(plot1(i))
+  cat('  \n')
+  cat('  \n')
+  cat('### Two')
+  cat('  \n')
+  cat('  \n')
+  plot(plot2(i))
+  cat('  \n')
+  cat('  \n')
+  cat('### Three')
+  cat('  \n')
+  cat('  \n')
+  plot(plot3(i))
+  cat('  \n')
+  cat('  \n')
+  cat('Row {data-height=550}')
+  cat('  \n')  
+  cat('-----------------------------')
+  cat('  \n')
+  cat('  \n')
+  cat('### Data')
+  cat('  \n')
+  cat('  \n')
+  cat(display_table(i))
+  cat('  \n')
+}
+```
+
+
+
