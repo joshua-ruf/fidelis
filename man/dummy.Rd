@@ -18,5 +18,5 @@ This function creates k-1 binary variables, where k is the number of unique valu
     It prints to the console which value will be used as the reference, and therefore won't have a binary variable.
 }
 \note{
-In keeping with data.table's methodoly this function does not need to be assigned to a new object
+In keeping with data.table's methodology this function does not need to be assigned to a new object
 }

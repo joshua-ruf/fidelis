@@ -23,5 +23,6 @@ It also prepares additional aggregations in which each grouping var is set to 'A
 }
 \details{
 If \code{no_all} == \code{group_vars} then this function merely performs a standard data.table aggregation,
-but if \code{no_all} != \code{group_vars} then this function returns all unique combinations of aggregations
+     but if \code{no_all} != \code{group_vars} then this function returns all unique combinations of aggregations. Drops
+     columns that do not appear in \code{group_vars} or \code{no_all}.
 }

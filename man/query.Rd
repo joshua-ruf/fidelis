@@ -17,7 +17,7 @@ Objects of length 1 will be left as is, whereas objects of length > 1 will be su
 Objects of type character will be surrounded by single quotations and objects of type numeric will be left as is.}
 }
 \description{
-Th \code{query()} function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
+The \code{query()} function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
    The \code{madlib()} function just prints the query to console after replacing dynamic inputs, useful for debugging.
 }
 \note{

@@ -8,13 +8,13 @@
 #' @param var A character string of the desired variable to dummy
 #' @param rm.var Logical, defaults to TRUE where the original variable will be removed
 #'
-#' @note In keeping with data.table's methodoly this function does not need to be assigned to a new object
+#' @note In keeping with data.table's methodology this function does not need to be assigned to a new object
 #'
 #' @export
 
 dummy <- function(D, var, rm.var = T){
 
-  if(!is.data.table(D)){D <- as.data.table(D)}
+  if(!is.data.table(D)){setDT(D)}
 
   col <- unique(D[[var]])
 

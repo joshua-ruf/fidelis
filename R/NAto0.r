@@ -12,7 +12,7 @@
 
 NAto0 <- function(D, cols, value = 0){
 
-  if(!is.data.table(D)){D <- as.data.table(D)}
+  if(!is.data.table(D)){setDT(D)}
 
   for(n in cols) set(D, i = which(is.na(D[[n]])), j = n, value = value)
 

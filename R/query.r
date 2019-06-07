@@ -1,6 +1,6 @@
 #' Execute Dynamic PostgreSQL Queries
 #'
-#' @description Th \code{query()} function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
+#' @description The \code{query()} function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
 #'    The \code{madlib()} function just prints the query to console after replacing dynamic inputs, useful for debugging.
 #'
 #' @param query A character string with dynamic inputs surrounded by "\%" (i.e. \code{\%<variable>\%})
@@ -101,8 +101,6 @@ madlib <- function(query, ...){
     query <- gsub(paste0('%', i, '%'), dots[[i]], query)
 
   }
-
-  #query <- gsub("\n+|\t+", " ", query)
 
   cat(query)
 

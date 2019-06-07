@@ -17,9 +17,9 @@
 
 set_dates <- function(last_month){
 
-  if(class(last_month)=='character'){last_month <- as.Date(last_month)}
+  if(is.character(last_month)){last_month <- as.Date(last_month)}
 
-  dates_df <- data.frame(effper = seq.Date(last_month, length = 24, by = '-1 month'))
+  dates_df <- data.frame(effper = seq(last_month, length = 24, by = '-1 month'))
 
   dates_df[, c('col', 'col6', 'col9', 'col12')] <- NA
 
