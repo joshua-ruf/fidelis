@@ -4,17 +4,13 @@
 \alias{send_to_database}
 \title{Save data.frame to Greenplum}
 \usage{
-send_to_database(x, name)
+send_to_database(data, name)
 }
 \arguments{
-\item{x}{The data.frame to upload. Only supports numeric, character, and date column types.}
+\item{data}{The data.frame to upload. Only supports numeric, character, and date column types.}
 
 \item{name}{A character name to call the table in Greenplum.}
 }
-\value{
-An object called 'sandbox.<name>' in greenplum
-}
 \description{
-Takes a data.frame in R's working memory and creates a sandbox'ed version of it in Greenplum.
-Make sure date columns have been converted to dates with as.Date() and that columns are the desired type.
+This function saves an R data.frame to a satabase using PostgreSQL's "INSERT INTO" function.
 }

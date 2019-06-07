@@ -13,18 +13,16 @@
 #' @details If \code{no_all} == \code{group_vars} then this function merely performs a standard data.table aggregation,
 #' but if \code{no_all} != \code{group_vars} then this function returns all unique combinations of aggregations
 #'
-#' @importFrom foreach %do%
-#'
 #' @export
 aggregate_all <- function(df, group_vars, agg_vars, fun = sum, no_all = NULL) {
 
   `%do%` <- foreach::`%do%`
 
-  if(!is.data.table(df)) {df <- as.data.table(df)}
+  if(!is.data.table(df)) {setDT(df)}
 
   setcolorder(df, c(group_vars, agg_vars))
 
-  for (j in group_vars) set(df, j=j, value = factor(df[[j]]))
+  for (j in group_vars) set(df, j=j, value = as.character(df[[j]]))
 
   grid <- foreach::foreach(i = group_vars, .combine = expand.grid, .multicombine = T) %do% {i = 0:1}
 
@@ -44,7 +42,7 @@ aggregate_all <- function(df, group_vars, agg_vars, fun = sum, no_all = NULL) {
     vars <- group_vars[grid[i,] == 1]
 
     if(length(var) != 0){
-      for (j in vars) set(D, j=j, value = 'ALL')
+      for (j in vars) {set(D, j=j, value = 'ALL')}
       D[, lapply(.SD, fun), by = group_vars]
       } else D
 

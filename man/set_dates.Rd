@@ -7,7 +7,7 @@
 set_dates(last_month)
 }
 \arguments{
-\item{last_month}{A date object, the final effective period. Ensure it is the first day of the month.}
+\item{last_month}{A character or Date object, formatted "\%Y-\%m-\%d". Ensure it is the first day of the final effective period.}
 }
 \description{
 This function returns a 24x5 data.table; the first column is the 24 effective periods, the second to fifth
@@ -15,9 +15,8 @@ This function returns a 24x5 data.table; the first column is the 24 effective pe
     is the 3 month rolling window and the others are identified by their number
 }
 \examples{
-last_month <- as.Date('2019-02-01')
+last_month <- as.Date('2019-02-01') or last_month <- '2019-02-01'
 dates_df <- set_dates(last_month)
 dates_df[!is.na(col), .(effper, col)] #could then be used to merge on to keep only certain effpers
-
 
 }

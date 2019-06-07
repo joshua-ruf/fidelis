@@ -1,19 +1,24 @@
-#' Greenplum Database Connection
+#' Setup Greenplum Database Connection
 #'
-#' greenplum_connect() asks for a password to connect to the Greenplum Database, and creates \code{conn} the connection object.
-#' greenplum_disconnect() disconnects \code{conn} as well as removes it from the environment
+#' @description This function creates a RPostgreSQL connection object for database connections.
 #'
-#' @param ask Logical, if TRUE (default) then rstuidioapi::askForPassword() will be called, otherwise uses secret.json file if setup
+#' \itemize{
+#'    \item\code{greenplum_connect()} asks for a password to connect to the Greenplum Database, and creates \code{conn} the connection object;
+#'    \item\code{greenplum_disconnect()} disconnects \code{conn} as well as removes it from the global environment
 #'
-#' @return A PostgreSQL database connection
+#' }
+#'
+#' @param ask Logical, if TRUE (default) then \code{rstuidioapi::askForPassword()} will be called, otherwise uses secret.json file if setup
+#'
+#' @return A PostgreSQL database connection named "conn"
 
 
 #' @export
 greenplum_connect <- function(ask = T){
 
-  user <- Sys.info()['login']
+  user <- Sys.info()[['login']]
   password <- if(ask){
-    rstudioapi::askForPassword(sprintf("Password for %s:", user))
+    rstudioapi::askForPassword(sprintf("Database Password for %s:", user))
   } else {
 
     if (file.exists('./Secrets/secret.json')) {
@@ -23,7 +28,7 @@ greenplum_connect <- function(ask = T){
     }
 
   conn <<- RPostgreSQL::dbConnect(
-    DBI::dbDriver('PostgreSQL'),
+    DBI::dbDriver("PostgreSQL"),
     dbname = 'fidprd',
     host = 'greenplum.fideliscare.org',
     port = 5432,
@@ -36,7 +41,8 @@ greenplum_connect <- function(ask = T){
 #' @rdname greenplum_connect
 greenplum_disconnect <- function(){
 
-  RPostgreSQL::dbDisconnect(conn = conn)
+  RPostgres::dbDisconnect(conn = conn)
   rm(conn, envir = .GlobalEnv)
 
 }
+

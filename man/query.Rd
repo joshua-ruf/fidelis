@@ -2,9 +2,12 @@
 % Please edit documentation in R/query.r
 \name{query}
 \alias{query}
+\alias{madlib}
 \title{Execute Dynamic PostgreSQL Queries}
 \usage{
 query(query, ...)
+
+madlib(query, ...)
 }
 \arguments{
 \item{query}{A character string with dynamic inputs surrounded by "\%" (i.e. \code{\%<variable>\%})}
@@ -14,7 +17,8 @@ Objects of length 1 will be left as is, whereas objects of length > 1 will be su
 Objects of type character will be surrounded by single quotations and objects of type numeric will be left as is.}
 }
 \description{
-This function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
+Th \code{query()} function sends a query with dynamic inputs to a PostgreSQL database, allowing loops and automated reporting.
+   The \code{madlib()} function just prints the query to console after replacing dynamic inputs, useful for debugging.
 }
 \note{
 Ensure there is a connection obejct 'conn' in your environment.
@@ -38,4 +42,8 @@ years <- c(2019, 2018, 2017)
 query(query = query,
        places = places,
        years = years)
+
+madlib(query = "select * from table where place in \%places\% and year in \%years\%;",
+       places = c('NYC', 'Vancouver', 'Hamilton'),
+       years = c(2019, 2018, 2017)) # returns a character object
 }

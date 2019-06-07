@@ -1,74 +1,37 @@
 #' Save data.frame to Greenplum
 #'
-#' Takes a data.frame in R's working memory and creates a sandbox'ed version of it in Greenplum.
-#' Make sure date columns have been converted to dates with as.Date() and that columns are the desired type.
+#' This function saves an R data.frame to a satabase using PostgreSQL's "INSERT INTO" function.
 #'
-#' @param x The data.frame to upload. Only supports numeric, character, and date column types.
+#' @param data The data.frame to upload. Only supports numeric, character, and date column types.
 #' @param name A character name to call the table in Greenplum.
-#' @return An object called 'sandbox.<name>' in greenplum
+#'
 #' @export
 #'
 
-send_to_database <- function(x, name){
+send_to_database <- function(data, name){
 
-`%do%` <- foreach::`%do%`
-`%dopar%` <- foreach::`%dopar%`
-require(data.table)
-doParallel::registerDoParallel(4)
+  types <- sapply(data,
+                  function(b){
+                    if (class(b)=='Date'){"DATE"}
+                    else if (is.numeric(b)){"NUMERIC"}
+                    else {"VARCHAR"}
+                  })
 
+  RPostgreSQL::dbSendQuery(conn, paste("DROP TABLE IF EXISTS", name, ";"))
 
-cols <- names(x)
+  RPostgreSQL::dbSendQuery(conn,
+                           paste("CREATE TABLE",
+                                 name,
+                                 " (",
+                                 paste(paste(names(types), types, sep = ' '), collapse = ', '),
+                                 ");"))
 
-ff <- function(b){
-  if (lubridate::is.Date(b)){'DATE'}
-  else if (is.numeric(b)){'NUMERIC'}
-  else {'VARCHAR'}
-}
-
-types <- x[,lapply(.SD, ff), .SDcols = cols]
-
-date_cols <- cols[grep('DATE', types)]
-
-if (idenitical(date_cols, character(0))){x <- x}
-else {
-x <- x[, (date_cols) := lapply(.SD, fidelis::usdate), .SDcols = date_cols]
-}
-
-col_type <- foreach::foreach(i = cols, j = types, .combine = function(a,b){paste(a,b, sep = ",")}) %do% paste(i,j)
-
-text0 <- foreach::foreach(i = 1:nrow(x)) %dopar% paste0("('", paste(x[i,], collapse = "','"), "'),")
-
-text <- foreach::foreach(i = text0, .combine = 'paste0') %dopar% i
-text <- substr(text, 1, nchar(text)-1)
-
-
-create_query <- paste0('create temp table ',
-                name,
-                ' (',
-                col_type,
-                ');')
-
-insert_query <- paste0('insert into ',
-                       name,
-                       ' (',
-                       paste(cols, collapse = ","),
-                       ') values',
-                       text,
-                       ';'
-                       )
-
-sandbox_query <- paste0('drop table if exists sandbox.',
-                        name,
-                        '; ',
-                        'create table sandbox.',
-                        name,
-                        ' as select * from ',
-                        name,
-                        ';'
-                        )
-
-fidelis::query(paste(create_query,
-            insert_query,
-            sandbox_query))
+  RPostgreSQL::dbSendQuery(conn,
+                           paste("INSERT INTO ",
+                                 name,
+                                 " (",
+                                 paste(names(data), collapse = ', '),
+                                 ") VALUES ",
+                                 paste(apply(data, 1, function(x){paste0("('", paste(x, collapse = "','"), "')")}), collapse = ',')))
 
 }

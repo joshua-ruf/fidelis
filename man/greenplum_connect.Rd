@@ -3,19 +3,24 @@
 \name{greenplum_connect}
 \alias{greenplum_connect}
 \alias{greenplum_disconnect}
-\title{Greenplum Database Connection}
+\title{Setup Greenplum Database Connection}
 \usage{
 greenplum_connect(ask = T)
 
 greenplum_disconnect()
 }
 \arguments{
-\item{ask}{Logical, if TRUE (default) then rstuidioapi::askForPassword() will be called, otherwise uses secret.json file if setup}
+\item{ask}{Logical, if TRUE (default) then \code{rstuidioapi::askForPassword()} will be called, otherwise uses secret.json file if setup}
 }
 \value{
-A PostgreSQL database connection
+A PostgreSQL database connection named "conn"
 }
 \description{
-greenplum_connect() asks for a password to connect to the Greenplum Database, and creates \code{conn} the connection object.
-greenplum_disconnect() disconnects \code{conn} as well as removes it from the environment
+This function creates a RPostgreSQL connection object for database connections.
+
+\itemize{
+   \item\code{greenplum_connect()} asks for a password to connect to the Greenplum Database, and creates \code{conn} the connection object;
+   \item\code{greenplum_disconnect()} disconnects \code{conn} as well as removes it from the global environment
+
+}
 }
