@@ -2,6 +2,7 @@
 
 export(NAto0)
 export(aggregate_all)
+export(auto_arima_cv)
 export(backwards_ma)
 export(begin_left)
 export(begin_right)
