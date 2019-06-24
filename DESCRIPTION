@@ -2,7 +2,7 @@ Package: fidelis
 Title: Automate Data Reporting
 Version: 0.1.1
 Authors@R: person("Joshua", "Ruf", email = "jruf95@gmail.com", role = c("aut", "cre"))
-Description: A host of functions streamlining database pulls, data visualization, dashboard creation, and forecasting
+Description: A host of functions streamlining database pulls, data visualization, forecasting, and dashboard creation.
 Depends: R (>= 3.5.2),
   data.table (>= 1.12.2)
 Imports:
@@ -10,15 +10,17 @@ Imports:
   DBI,
   foreach,
   formattable,
-  jsonlite,
   magrittr,
   RPostgreSQL,
   rstudioapi
 Suggests:
   doParallel,
   flexdashboard,
+  htmltools,
   kableExtra,
   knitr,
+  lubridate,
+  plotly,
   rmarkdown,
   shiny
 License: MIT

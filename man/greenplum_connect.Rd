@@ -3,24 +3,31 @@
 \name{greenplum_connect}
 \alias{greenplum_connect}
 \alias{greenplum_disconnect}
+\alias{create_secret}
 \title{Setup Greenplum Database Connection}
 \usage{
 greenplum_connect(ask = T)
 
 greenplum_disconnect()
+
+create_secret()
 }
 \arguments{
-\item{ask}{Logical, if TRUE (default) then \code{rstuidioapi::askForPassword()} will be called, otherwise uses secret.json file if setup}
-}
-\value{
-A PostgreSQL database connection named "conn"
+\item{ask}{Logical, if \code{TRUE} (default) then RStudio will ask the user to input their database password,
+if \code{FALSE} then password will be read from secret.rds}
 }
 \description{
-This function creates a RPostgreSQL connection object for database connections.
+This function establishes a RPostgreSQL database connection.
 
 \itemize{
-   \item\code{greenplum_connect()} asks for a password to connect to the Greenplum Database, and creates \code{conn} the connection object;
-   \item\code{greenplum_disconnect()} disconnects \code{conn} as well as removes it from the global environment
+   \item\code{greenplum_connect()} creates a Greenplum connection object, \code{conn};
+   \item\code{greenplum_disconnect()} disconnects \code{conn} and removes it from the global environment;
+   \item\code{create_secret()} writes a password to 'C:/Users/<user>/Documents/Secrets/secret.rds',
+        and creates a new directory if necessary
 
 }
+}
+\note{
+Database connection created with RPostgreSQL rather than RPostgres or RGreenplum as only RPostgreSQL can run multiple queries with
+     one db call.
 }
