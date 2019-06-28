@@ -2,15 +2,19 @@
 % Please edit documentation in R/send_to_database.r
 \name{send_to_database}
 \alias{send_to_database}
-\title{Save data.frame to Greenplum}
+\title{Save a data.frame to Greenplum}
 \usage{
 send_to_database(data, name)
 }
 \arguments{
-\item{data}{The data.frame to upload. Only supports numeric, character, and date column types.}
+\item{data}{The data.frame to upload; only supports numeric, character, and date column types.}
 
-\item{name}{A character name to call the table in Greenplum.}
+\item{name}{A character name to call the table in Greenplum. If the name begins with "sandbox." then
+a table will be created in the sandbox, otherwise a temp table will be created.}
 }
 \description{
-This function saves an R data.frame to a satabase using PostgreSQL's "INSERT INTO" function.
+This function sends a data.frame to Greenplum using PostgreSQL's "INSERT INTO" function.
+}
+\note{
+Make sure there is a connection object 'conn' in your envrionment!
 }
