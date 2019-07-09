@@ -1,6 +1,6 @@
 Package: fidelis
 Title: Automate Data Reporting
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: person("Joshua", "Ruf", email = "jruf95@gmail.com", role = c("aut", "cre"))
 Description: A host of functions streamlining database pulls, data visualization, forecasting, and dashboard creation.
 Depends: R (>= 3.5.2),

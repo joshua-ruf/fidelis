@@ -1,0 +1,46 @@
+cat,category,group,subtotal
+Inpatient_Hospice,Hospice,Inpatient,1
+Inpatient_Med_Surg,Medical Surgical,Inpatient,1
+Inpatient_Mental_Health,Inpatient Mental Health,Inpatient,1
+Inpatient_SNF,Skilled Nursing Facility,Inpatient,1
+Inpatient_SUD,Inpatient Substance Use Disorder,Inpatient,1
+Inpatient_Maternity,Maternity,Inpatient Newborn/Maternity,1
+Inpatient_Newborn_>=1200,Newborn,Inpatient Newborn/Maternity,1
+Inpatient_Newborn_LBW,Low Birth Weight,Inpatient Newborn/Maternity,1
+Ambulatory_Surgery,Ambulatory Surgery,Outpatient,1
+ER_Non_OB,Emergency Room w/o Observation Stay,Outpatient,1
+ER_OB,Emergency Room w/ Observation Stay,Outpatient,1
+Outpatient_Mental_Health,Outpatient Mental Health,Outpatient,1
+Outpatient_Rehabilitation,Rehabilitation,Outpatient,1
+Outpatient_SUD,Outpatient Substance Use Disorder,Outpatient,1
+Pre_Nat_Post_Part_Care,Prenatal / Postpartum Care,Outpatient,1
+Physician_Specialist,Physician Specialist,Physician,1
+Primary_Care,Primary Care,Physician,1
+Adult_Day_Health_Care,Adult Day Health Care,Other,1
+Audiology,Audiology,Other,1
+Diagnostic_Testing_Lab,Diagnostic Testing Lab,Other,1
+Diagnostic_Testing_Xray,Diagnostic Testing Xray,Other,1
+Dialysis,Dialysis,Other,1
+Durable_Medical_Equipment,Durable Medical Equipment,Other,1
+Emergency_Transport,Emergency Transport,Other,1
+Family_planning,Family Planning,Other,0
+Home_Delivered_Meal,Home Delivered Meal,Other,1
+Home_Health_Care,Home Health Care,Other,1
+Non_Emergency_Transport,Non Emergency Transport,Other,1
+Other_Medical,Other Medical,Other,1
+Outpatient_Pharmacy,Outpatient Pharmacy,Other,1
+Para_Professional_Care,Personal Care Services,Other,1
+PERS,Personal Emergency Response System,Other,1
+Podiatry,Podiatry,Other,1
+Private_Duty_Nursing,Private Duty Nursing,Other,1
+Urgent_Care,Urgent Care,Other,0
+Dental,Dental,,0
+Pharmacy,Pharmacy,,0
+Vision,Vision,,0
+DENTAL_ADMIN_FEE,Dental Admin Fee,,0
+NON_EMERGENCY_TRANSPORTATION,Non-Emergency Transportation,,0
+PCP_ESCALATOR,PCP Capitation & Escalator Fees,,0
+PCP_CAPITATION,PCP Capitation & Escalator Fees,,0
+IBNR,IBNR,,0
+NICU,NICU,,0
+NICU_LOS,NICU LOS,,0
