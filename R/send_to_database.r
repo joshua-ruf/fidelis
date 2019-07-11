@@ -20,6 +20,8 @@ send_to_database <- function(data, name){
                     else {"VARCHAR"}
                   })
 
+  data <- as.data.frame(data)
+
   data[names(types[types=='VARCHAR'])] <- lapply(data[names(types[types=='VARCHAR'])],
                                                  function(x){gsub("'", "''", x)})
 
