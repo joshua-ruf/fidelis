@@ -4,12 +4,12 @@
 \alias{NAto0}
 \title{Convert NAs to Zero in data.table}
 \usage{
-NAto0(D, cols, value = 0)
+NAto0(D, cols = names(D), value = 0)
 }
 \arguments{
 \item{D}{A data.table or data.frame}
 
-\item{cols}{A vector of column names to rid of NAs}
+\item{cols}{A vector of column names to rid of NAs, defaults to all columns}
 
 \item{value}{Defaults to 0, the value with which to replace NAs}
 }
