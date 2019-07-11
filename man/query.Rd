@@ -21,7 +21,10 @@ The \code{query()} function sends a query with dynamic inputs to a PostgreSQL da
    The \code{madlib()} function just prints the query to console after replacing dynamic inputs, useful for debugging.
 }
 \note{
-Ensure there is a connection obejct 'conn' in your environment.
+\itemize{
+     \item Ensure there is a connection obejct 'conn' in your environment;
+     \item Do not comment with \code{--comment}, instead use \code{/*comment*/}.
+}
 }
 \examples{
 query(query = "select * from table where place in \%places\% and year in \%years\%;",

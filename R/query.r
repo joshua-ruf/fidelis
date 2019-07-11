@@ -8,7 +8,10 @@
 #'    Objects of length 1 will be left as is, whereas objects of length > 1 will be surrounded with brackets.
 #'    Objects of type character will be surrounded by single quotations and objects of type numeric will be left as is.
 #'
-#' @note Ensure there is a connection obejct 'conn' in your environment.
+#' @note \itemize{
+#'      \item Ensure there is a connection obejct 'conn' in your environment;
+#'      \item Do not comment with \code{--comment}, instead use \code{/*comment*/}.
+#' }
 #'
 #' @export
 #'
