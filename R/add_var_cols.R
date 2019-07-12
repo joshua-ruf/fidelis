@@ -27,9 +27,10 @@ add_var_cols <- function(D, vars = c('cost_pmpm', 'claims_per_1000', 'cost_per_c
 
   for(var in vars){
 
-    set(D, j = paste0(var, '_var'), value = D[[paste0(var, '_current')]] - D[[paste0(var, '_prior')]])
-
-    set(D, j = paste0(var, '_var_pct'), value = pct_change(D[[paste0(var, '_prior')]], D[[paste0(var, '_current')]], format = format.pct))
+    set(D,
+        j = c(paste0(var, '_var'), paste0(var, '_var_pct')),
+        value = list(D[[paste0(var, '_current')]] - D[[paste0(var, '_prior')]],
+                     pct_change(D[[paste0(var, '_prior')]], D[[paste0(var, '_current')]], format = format.pct)))
   }
 
   if(reorder){
@@ -61,15 +62,16 @@ add_var_cols2 <- function(D, vars = c('cost_pmpm', 'claims_per_1000', 'cost_per_
              value.var = vars,
              fill = 0)
 
+  if(length(vars)==1){
+    names(D)[which(names(D)=='current')] <- paste0(vars, '_current');
+    names(D)[which(names(D)=='prior')] <- paste0(vars, '_prior')
+  }
+
   for(var in vars){
 
-    set(D,
-        j = paste0(var, '_var'),
-        value = D[[paste0(var, '_current')]] - D[[paste0(var, '_prior')]])
-
-    set(D,
-        j = paste0(var, '_var_pct'),
-        value = pct_change(D[[paste0(var, '_prior')]], D[[paste0(var, '_current')]], format = format.pct))
+    D[, c(paste0(var, '_var'), paste0(var, '_var_pct')) :=
+        list(D[[paste0(var, '_current')]] - D[[paste0(var, '_prior')]],
+             pct_change(D[[paste0(var, '_prior')]], D[[paste0(var, '_current')]], format = format.pct))]
   }
 
   if(reorder){
