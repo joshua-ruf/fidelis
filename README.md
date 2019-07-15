@@ -63,17 +63,21 @@ install.packages(c('tidyverse', 'openxlsx'))
 
 At the heart of the fidelis package is really just an efficient
 integration of R with Greenplum/PostgreSQL. This section will serve as
-the `Hello World!` to just some of these functions.
+the `Hello World!` to just some of these functions. Throughout this
+tutorial I frequently make use of `%>%` from the magrittr package. This
+*pipe* allows us to split code onto multiple lines, making it easier to
+read (and also write). For example, `sum(x, y)` returns the same value
+as `x %>% sum(y)`.
 
 We’ll begin by creating a data.frame and uploading it to the database.
 
 ``` r
-library(data.table)
-library(magrittr)
-library(dplyr)
-library(formattable)
-library(knitr)
-library(kableExtra)
+library(data.table) #data manipulation
+library(magrittr) #pipes
+library(dplyr) #data manipulation
+library(formattable) #number formatting/coloring
+library(knitr) #basic table creation
+library(kableExtra) #table formatting
 library(fidelis)
 ```
 
@@ -90,7 +94,7 @@ df <- expand.grid(stringsAsFactors = F,
 n <- nrow(df) # number of rows in df
 
 df <- df %>%
-  as.data.table() %>%
+  data.table::as.data.table() %>%
   .[, `:=`(spend = runif(n = n)*1000,
            members = sample(100:200, size = n, replace = T))]
 # add 2 new columns of random data, spend and members
@@ -105,18 +109,13 @@ fidelis::send_to_database(df, name = 'temptable')
 # send df to the greenplum database as a temp table
 # note: if name began with "sandbox." then the table would be permenant instead of temporary
 
-fidelis::query("select * from temptable limit 10;")
-#>          date product region    spend members
-#> 1  2018-01-01       B      a 763.8364     170
-#> 2  2019-05-01       D      a 826.9836     167
-#> 3  2018-09-01       A      b 598.7925     133
-#> 4  2018-01-01       D      b 486.5763     133
-#> 5  2018-04-01       E      b 278.1571     158
-#> 6  2017-08-01       B      c 669.3511     152
-#> 7  2018-12-01       D      c 534.4997     101
-#> 8  2018-04-01       A      d 441.2869     118
-#> 9  2017-11-01       D      d 735.1437     109
-#> 10 2019-03-01       F      d 141.7649     111
+fidelis::query("select * from temptable limit 5;")
+#>         date product region    spend members
+#> 1 2018-12-01       B      a 294.2245     174
+#> 2 2018-04-01       E      a 537.6242     115
+#> 3 2017-08-01       B      b 559.9943     133
+#> 4 2018-12-01       D      b 724.0961     141
+#> 5 2019-05-01       B      c 780.2080     116
 # to run a SQL query pass sql code as a string through fidelis::query()
 # assign to R object to save results
 ```
@@ -142,12 +141,12 @@ df_limited <- fidelis::query(
   product = products,
   region = regions
 
-) # note how dynamic inputs are added, they must be named after the SQL code and surrounded by "%" in the SQL code
+) # note how dynamic inputs are added, they must be named after the SQL text and surrounded by "%" in the SQL code
 
 unique(df_limited[, c('product', 'region')])
 #>   product region
-#> 1       A      d
-#> 2       B      d
+#> 1       B      d
+#> 2       A      d
 # test to make sure the dynamic where clause was successful!
 ```
 
@@ -237,17 +236,17 @@ df_aggregated <- fidelis::query(
 )
 
 head(df_aggregated, 10)
-#>        col product region    spend members
-#> 1  current       F      c 2292.183     423
-#> 2    prior       A      a 1697.415     493
-#> 3    prior       F      d 1190.033     394
-#> 4    prior       A      b 1700.689     412
-#> 5    prior       F      a  893.039     460
-#> 6    prior       A      d 1353.199     371
-#> 7  current       F      b 1134.163     386
-#> 8  current       F      a 1137.197     452
-#> 9    prior       A      c 1711.740     397
-#> 10   prior       F      c 2149.611     386
+#>        col product region     spend members
+#> 1  current       F      b 2033.1587     504
+#> 2  current       F      c  949.7999     493
+#> 3    prior       F      d 1606.4501     462
+#> 4    prior       A      a 1011.8051     463
+#> 5  current       C      a 1428.0296     393
+#> 6    prior       E      d 1799.3940     378
+#> 7    prior       A      b 1561.8828     449
+#> 8  current       F      a 1582.0105     428
+#> 9    prior       A      c 2263.9995     547
+#> 10   prior       F      b 2273.8818     518
 ```
 
 Great\! One major limitation of this approach is that error handling can
@@ -299,7 +298,7 @@ reference](https://haozhu233.github.io/kableExtra/awesome_table_in_html.html)
 was made by Hao Zhu.
 
 ``` r
-setDT(df_aggregated)
+data.table::setDT(df_aggregated)
 # set as data.table
 
 df_aggregated[, spend_per_member := spend/members]
@@ -322,29 +321,29 @@ left_cols <- 2 #specify how many of the left most columns are left aligned (the 
 
 df_wide %>%
   dplyr::mutate(
-    spend_per_member_prior = formattable::color_bar('lightblue')(spend_per_member_prior),
-    spend_per_member_current = formattable::color_bar('lightblue')(spend_per_member_current),
-    spend_per_member_var = fidelis::red_green_tiles.r(spend_per_member_var),
-    spend_per_member_var_pct = fidelis::red_green_text.r(spend_per_member_var_pct)
-    ) %>% #apply colouring
+      spend_per_member_prior = formattable::color_bar('lightblue')(spend_per_member_prior),
+      spend_per_member_current = formattable::color_bar('lightblue')(spend_per_member_current),
+      spend_per_member_var = fidelis::red_green_tiles.r(spend_per_member_var),
+      spend_per_member_var_pct = fidelis::red_green_text.r(spend_per_member_var_pct)
+      ) %>% #apply colouring
   knitr::kable(
-        escape = F, #necessary for html formatting to be read as html
-        format = 'html',
-        table.attr = "style = \"color: black;\"", #change font from grey to black
-        col.names = c('Product', 'Region',
-                      'Prior', 'Current', 'Var', 'Var (%)'),
-        align = c(rep('l', left_cols),  rep('r', ncol(.) - left_cols)) #align columns left or right
-        ) %>% 
+      escape = F, #necessary for html formatting to be read as html
+      format = 'html',
+      table.attr = "style = \"color: black;\"", #change font from grey to black
+      col.names = c('Product', 'Region',
+                    'Prior', 'Current', 'Var', 'Var (%)'),
+      align = c(rep('l', left_cols),  rep('r', ncol(.) - left_cols)) #align columns left or right
+      ) %>% 
   kableExtra::kable_styling(
-                full_width = F,
-                protect_latex = F, # useful for coloring formatting as well
-                position = "left",
-                bootstrap_options = c('condensed', 'hover')
-                ) %>%
+      full_width = F,
+      protect_latex = F, # useful for coloring formatting as well
+      position = "left",
+      bootstrap_options = c('condensed', 'hover')
+      ) %>%
   kableExtra::column_spec(1, bold = T) %>%
   kableExtra::add_header_above(c(' ' = 2, 'Spend/ Members' = 4)) %>%
   kableExtra::collapse_rows(columns = 1, valign = 'top') %>%
-  footnote(general = "Cool eh?") %>%
+  kableExtra::footnote(general = "Cool eh?") %>%
   htmltools::knit_print.html() #this is necessary for use with with results='asis'
 ```
 

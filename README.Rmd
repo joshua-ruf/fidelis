@@ -60,17 +60,17 @@ install.packages(c('tidyverse', 'openxlsx'))
 
 ## Example
 
-At the heart of the fidelis package is really just an efficient integration of R with Greenplum/PostgreSQL. This section will serve as the `Hello World!` to just some of these functions.
+At the heart of the fidelis package is really just an efficient integration of R with Greenplum/PostgreSQL. This section will serve as the `Hello World!` to just some of these functions. Throughout this tutorial I frequently make use of `%>%` from the magrittr package. This *pipe* allows us to split code onto multiple lines, making it easier to read (and also write). For example, `sum(x, y)` returns the same value as `x %>% sum(y)`.
 
-We'll begin by creating a data.frame and uploading it to the database.
+We'll begin by creating a data.frame and uploading it to the database. 
 
 ```{r, warning = F, error = F, message = F}
-library(data.table)
-library(magrittr)
-library(dplyr)
-library(formattable)
-library(knitr)
-library(kableExtra)
+library(data.table) #data manipulation
+library(magrittr) #pipes
+library(dplyr) #data manipulation
+library(formattable) #number formatting/coloring
+library(knitr) #basic table creation
+library(kableExtra) #table formatting
 library(fidelis)
 ```
 
@@ -87,7 +87,7 @@ df <- expand.grid(stringsAsFactors = F,
 n <- nrow(df) # number of rows in df
 
 df <- df %>%
-  as.data.table() %>%
+  data.table::as.data.table() %>%
   .[, `:=`(spend = runif(n = n)*1000,
            members = sample(100:200, size = n, replace = T))]
 # add 2 new columns of random data, spend and members
@@ -101,7 +101,7 @@ fidelis::send_to_database(df, name = 'temptable')
 # send df to the greenplum database as a temp table
 # note: if name began with "sandbox." then the table would be permenant instead of temporary
 
-fidelis::query("select * from temptable limit 10;")
+fidelis::query("select * from temptable limit 5;")
 # to run a SQL query pass sql code as a string through fidelis::query()
 # assign to R object to save results
 ```
@@ -124,7 +124,7 @@ df_limited <- fidelis::query(
   product = products,
   region = regions
 
-) # note how dynamic inputs are added, they must be named after the SQL code and surrounded by "%" in the SQL code
+) # note how dynamic inputs are added, they must be named after the SQL text and surrounded by "%" in the SQL code
 
 unique(df_limited[, c('product', 'region')])
 # test to make sure the dynamic where clause was successful!
@@ -211,7 +211,7 @@ fidelis::madlib(
 Fortunately, this query runs with no errors! Now let's create a summary table using formattable, knitr, kableExtra, and fidelis. A [great reference](https://haozhu233.github.io/kableExtra/awesome_table_in_html.html) was made by Hao Zhu.
 
 ```{r}
-setDT(df_aggregated)
+data.table::setDT(df_aggregated)
 # set as data.table
 
 df_aggregated[, spend_per_member := spend/members]
@@ -232,29 +232,29 @@ left_cols <- 2 #specify how many of the left most columns are left aligned (the 
 
 df_wide %>%
   dplyr::mutate(
-    spend_per_member_prior = formattable::color_bar('lightblue')(spend_per_member_prior),
-    spend_per_member_current = formattable::color_bar('lightblue')(spend_per_member_current),
-    spend_per_member_var = fidelis::red_green_tiles.r(spend_per_member_var),
-    spend_per_member_var_pct = fidelis::red_green_text.r(spend_per_member_var_pct)
-    ) %>% #apply colouring
+      spend_per_member_prior = formattable::color_bar('lightblue')(spend_per_member_prior),
+      spend_per_member_current = formattable::color_bar('lightblue')(spend_per_member_current),
+      spend_per_member_var = fidelis::red_green_tiles.r(spend_per_member_var),
+      spend_per_member_var_pct = fidelis::red_green_text.r(spend_per_member_var_pct)
+      ) %>% #apply colouring
   knitr::kable(
-        escape = F, #necessary for html formatting to be read as html
-        format = 'html',
-        table.attr = "style = \"color: black;\"", #change font from grey to black
-        col.names = c('Product', 'Region',
-                      'Prior', 'Current', 'Var', 'Var (%)'),
-        align = c(rep('l', left_cols),  rep('r', ncol(.) - left_cols)) #align columns left or right
-        ) %>% 
+      escape = F, #necessary for html formatting to be read as html
+      format = 'html',
+      table.attr = "style = \"color: black;\"", #change font from grey to black
+      col.names = c('Product', 'Region',
+                    'Prior', 'Current', 'Var', 'Var (%)'),
+      align = c(rep('l', left_cols),  rep('r', ncol(.) - left_cols)) #align columns left or right
+      ) %>% 
   kableExtra::kable_styling(
-                full_width = F,
-                protect_latex = F, # useful for coloring formatting as well
-                position = "left",
-                bootstrap_options = c('condensed', 'hover')
-                ) %>%
+      full_width = F,
+      protect_latex = F, # useful for coloring formatting as well
+      position = "left",
+      bootstrap_options = c('condensed', 'hover')
+      ) %>%
   kableExtra::column_spec(1, bold = T) %>%
   kableExtra::add_header_above(c(' ' = 2, 'Spend/ Members' = 4)) %>%
   kableExtra::collapse_rows(columns = 1, valign = 'top') %>%
-  footnote(general = "Cool eh?") %>%
+  kableExtra::footnote(general = "Cool eh?") %>%
   htmltools::knit_print.html() #this is necessary for use with with results='asis'
 ```
 
