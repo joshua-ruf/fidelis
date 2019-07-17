@@ -1,0 +1,301 @@
+---
+title: "R + Greenplum + Excel Tutorial"
+author: "Joshua Ruf"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(fidelis) # also attaches data.table
+library(openxlsx) # R and Excel integration
+library(tidyverse)
+library(formattable) # for coloring data.table ouputs
+```
+
+This vignette outlines how we can use R to connect to the PostgreSQL Greenplum database, integrate R with our Excel workfow, and create pretty html based reports. As an example, we will be creating a report that compares Instututional claims with Professional claims across a number of LOB, by looking at the paid dates.<br>
+
+Before we begin, set the pagewidth of the html output with this function below, be sure to set `results='asis'` in the Rmarkdown chunk.
+
+```{r, results='asis'}
+fidelis::setup_pagewidth(1200)
+```
+
+
+To Begin we need a few things:<br>
+1. An excel template file with 6 sheets:<br>
+    a) INSTITUTIONAL, a formula driven summary tab<br>
+    b) INSTITUTIONAL_RAW, an invisible sheet to dump raw data<br>
+    c) PROFESSIONAL, a formula driven summary tab<br>
+    d) PROFESSIONAL_RAW, an invisible sheet to dump raw data<br>
+    e) LOB, an invisible sheet to dump product names to populate dropdown list. Note: cannot be empty initially as the dropdown formula won't work<br>
+    f) WEEKS_RAW, an invisible sheet to dump how many fridays each month has<br>
+2. A secret password file created with `fidelis::create_secret()`, allowing us to use the ask=F option in `fidelis::greenplum_connect()`<br>
+3. Make sure the template file is not open while you run this script!
+
+### Formula-based Excel Document
+
+```{r}
+fidelis::greenplum_connect(ask=F)
+# create greenplum connection object, see ?fidelis::greenplum_connect() for more information
+# once we've created a connection object with this function, query() automatically uses that connection to query
+
+wb <- openxlsx::loadWorkbook('Weekly_Cost_Utilization_by_Paid_Date_TEMPLATE.xlsx')
+# create a wb workbook binding object for the template file
+```
+
+First, we'll add the WEEKS_RAW tab.<br>
+
+The `query()` function in the fidelis package is dynamic, meaning that you can pass r objects as parameters into the query. To make this explicit, I will create an R object that is the minimum effective period date to limit the queries.
+
+
+```{r}
+min_effper <- '1/1/2016'
+
+fridays <- fidelis::query(
+
+  "
+  SELECT date_trunc('month', clcl_paid_dt) AS actper
+    ,count(*) AS fridays
+  FROM (
+  	SELECT DISTINCT clcl_paid_dt
+  	FROM ods_facets.cmc_clcl_claim
+  	WHERE clcl_paid_dt >= %min_effper%) AS a
+  WHERE to_char(clcl_paid_dt, 'day') LIKE 'friday%'
+  GROUP BY 1
+  ;
+  ",
+  min_effper = min_effper) %>%
+  dplyr::mutate(actper = as.Date(actper, format = '%m/%d/%Y'))
+# return the results of the above query and convert dates to normal date format
+
+openxlsx::removeWorksheet(wb, 'WEEKS_RAW') # drop old WEEKS_RAW tab
+openxlsx::addWorksheet(wb, 'WEEKS_RAW', visible = F) # create new hidden WEEKS_RAW tab
+openxlsx::writeData(wb, 'WEEKS_RAW', fridays) # dump the data.frame fridays in the WEEKS_RAW tab of wb
+```
+
+Next, we'll add the INSTITUTIONAL_RAW and PROFESSIONAL_RAW tabs.
+
+```{r}
+fidelis::query("
+
+  DROP TABLE IF EXISTS final;
+  CREATE temp TABLE final AS
+  SELECT date_trunc('month', clcl_paid_dt) AS actper,
+    clcl_cl_sub_type,
+    product,
+    mmcor_desc,
+    sum(cdml_paid_amt) AS paid,
+    count(DISTINCT clcl_id) AS util
+  FROM sandbox.mmcor_final_medecon_gl as a
+  where clcl_paid_dt >= %min_effper%
+    and product not in ('FIDA', 'FHP')
+    and product is not NULL
+  GROUP BY 1,2,3,4
+  ;
+  ",
+  min_effper = min_effper
+)
+# create a temp table, final, to pull from in the next query
+
+institutional <- fidelis::query(
+
+  "
+  select actper
+    ,null as placeholder1
+    ,null as placeholder2
+    ,mmcor_desc
+    ,'All' as placeholder3
+    ,paid
+    ,util
+    ,product
+  from final
+  where clcl_cl_sub_type = 'H'
+  ;
+  "
+  ) %>%
+  dplyr::mutate(actper = as.Date(actper, format = '%m/%d/%Y'))
+
+openxlsx::removeWorksheet(wb, 'INSTITUTIONAL_RAW')
+openxlsx::addWorksheet(wb, 'INSTITUTIONAL_RAW', visible = F)
+openxlsx::writeData(wb, 'INSTITUTIONAL_RAW', institutional)
+
+professional <- fidelis::query(
+
+  "
+  select actper
+    ,null as placeholder1
+    ,null as placeholder2
+    ,mmcor_desc
+    ,'ALL' as placeholder3
+    ,paid
+    ,util
+    ,product
+  from final
+  where clcl_cl_sub_type = 'M'
+  ;
+  "
+  ) %>%
+  dplyr::mutate(actper = as.Date(actper, format = '%m/%d/%Y'))
+
+openxlsx::removeWorksheet(wb, 'PROFESSIONAL_RAW')
+openxlsx::addWorksheet(wb, 'PROFESSIONAL_RAW', visible = F)
+openxlsx::writeData(wb, 'PROFESSIONAL_RAW', professional)
+```
+
+```{r}
+lob <- unique(professional$product)
+
+openxlsx::removeWorksheet(wb, 'LOB')
+openxlsx::addWorksheet(wb, 'LOB', visible = F)
+openxlsx::writeData(wb, 'LOB', lob, colNames = F) # do not add the column name
+```
+
+Save the updated excel workbook to a new file, named based on the current date
+
+```{r}
+openxlsx::saveWorkbook(wb, overwrite = TRUE,
+             file = sprintf("Weekly_Cost_Utilization_by_Paid_Date_%s.xlsx", gsub('-', '', Sys.Date())))
+```
+
+Take a look at the file: `r sprintf("Weekly_Cost_Utilization_by_Paid_Date_%s.xlsx", gsub('-', '', Sys.Date()))`, remembering that there are hidden worksheets.
+
+### Excel Data Dump
+
+Now suppose that we are in need of the raw data for the professional claims, with each LOB in a different tab. This can also be accomplished with the openxlsx package.
+
+```{r}
+professional_list <- split(professional,
+                           f = professional$product,
+                           drop = T)
+# create a list of data.frames split by product; drop=T means we'll drop the provider variable in each data.frame in the list
+
+openxlsx::write.xlsx(professional_list,
+           file = sprintf("professional_raw_%s.xlsx", gsub('-', '', Sys.Date())))
+```
+
+Take a look at the workbook: `r sprintf("professional_raw_%s.xlsx", gsub('-', '', Sys.Date()))`.
+
+
+### HTML Output
+
+Finally, let's say we want to bypass Excel altogether and instead create an html-based table, perhaps even color-coded. As an example we'll create a series of tables for each LOB for only professional claims. Part of the usefulness of this approach is the ability to loop through each LOB.
+
+```{r}
+final_effper <- lubridate::add_with_rollback(e1 = lubridate::round_date(Sys.Date(), 'months'), e2 = months(-4))
+# lets look back such that the final effper still gives three complete months between now and the final day in that month.
+
+months <- 3 # use a three month rolling window
+
+dates_df <- final_effper %>%
+  fidelis::set_dates() %>%
+  .[, c(1, 1 + months/3), with = F]
+# assigns each month in a 24 month period to either prior, current, or NULL
+
+current <- dates_df[col == 'current', effper]
+# current period
+
+prior <- dates_df[col == 'prior', effper]
+# prior period
+
+cos_names <- data.table::fread('cos_names.csv')
+# data.table with sandbox mmcor_desc names as well as prettied ones used in final reports
+
+fridays <- fridays %>%
+  data.table::as.data.table() %>%
+  .[actper %in% c(current, prior)] %>%
+  .[, col := ifelse(actper %in% current, 'current', 'prior')] %>%
+  .[, .(fridays = sum(fridays)), by = col]
+# aggregate fridays for the current and prior period
+
+
+df <- professional %>%
+  merge(cos_names[subtotal==1, .(cat, category)],
+        by.x = 'mmcor_desc',
+        by.y = 'cat') %>% # clean the mmcor_desc names
+  .[, -grep('placeholder|mmcor_desc', names(.))] %>% #drop useless variables
+  data.table::as.data.table() %>% # coerce to data.table
+  .[actper %in% c(prior, current), ] %>% #keep only dates in prior or current
+  .[, `:=`(col = ifelse(actper %in% current, 'current', 'prior'))] %>% # create binary col variable
+  .[, actper := NULL] %>% # drop old date variable
+  .[, lapply(.SD, sum), by = .(col, product, mmcor_desc = category)] %>% # aggregate
+  merge(fridays, by = 'col') #merge with fridays
+  
+df[, `:=`(avg_cost_per_week = formattable::currency(paid/fridays),
+          avg_claims_per_week = formattable::accounting(util/fridays),
+          cost_per_claim = formattable::currency(paid/util))]
+# create new variables of interest
+
+df <- fidelis::add_var_cols2(df, vars = c('avg_cost_per_week', 'avg_claims_per_week', 'cost_per_claim'))
+# convert to 3612 style with this fidelis function
+```
+
+With our df data.table ready, I find the easiest way to loop through each product is to make a function that outputs the final table, with the product as an input.
+
+```{r}
+display_table <- function(i){
+  
+  D <- df[product == i, -'product']
+  #keep only specified product and drop that variable
+  
+  D %>% 
+    .[order(-avg_cost_per_week_var)] %>% #order in descending avg_cost_per_week_var
+    dplyr::mutate(
+      avg_cost_per_week_prior = color_bar('lightblue')(avg_cost_per_week_prior),
+      avg_cost_per_week_current = color_bar('lightblue')(avg_cost_per_week_current), #note: color_bar returns a function
+      avg_cost_per_week_var = red_green_tiles.r(avg_cost_per_week_var),
+      avg_cost_per_week_var_pct = red_green_text.r(avg_cost_per_week_var_pct)
+      ) %>% # add color formatting
+    knitr::kable(
+      escape = F, #necessary for use with formattable
+      format = 'html', #html output
+      table.attr = "style = \"color: black;\"", #black text instead of grey
+      col.names = c('COS', rep(c('Prior', 'Current', 'Var', 'Var (%)'), 3)), #lower columnn names
+      align = c(rep('l', 1), rep('r', ncol(D)-1)) #specify alignment
+      ) %>% # kable is part of the knitr package
+    kableExtra::kable_styling(
+      full_width = T, #make the table fill the page hoirzontally, probably best as there are 12 data columns
+      protect_latex = F, #seems useful for formattable coloring
+      position = "center", #center table
+      bootstrap_options = c('condensed', 'hover') #i like condense as it saves space and hover makes it easy to read
+      ) %>% #kableExtra package is an extension to knitr's kable
+    kableExtra::column_spec(1, bold = T) %>% # bold the first column
+    kableExtra::add_header_above(c(' ' = 1,
+                       'Cost/ Week' = 4,
+                       'Claims/ Week' = 4,
+                       'Cost/ Claim' = 4)) %>% # add header above with the true column names
+    htmltools::knit_print.html() # very important, to be used with Rmarkdown chunk option: results='asis'
+  
+}
+```
+
+Now, with `results='asis'` we can write plain html to be rendered. We must use cat when writing text or tables, and use the `br()` function from the fidelis package for line breaks. Note: graphs can be easily looped with ggplot but plotly objects are problematic and looping is not as easy. For example, the drilldown files I made use plotly but there actually isn't a loop involved, but rather good-ole copy and paste!<br>
+
+This code though will display a table for each product and dump each into a new tabbed section.
+
+## {.tabset .tabset-fade}
+
+```{r results='asis'}
+for(i in lob[1:3]){# limit to first three LOB to keep document short
+  
+  fidelis::br(2)
+    cat('###', i)
+  fidelis::br(2)
+    cat(display_table(i))
+  fidelis::br()
+}
+```
+
+##
+
