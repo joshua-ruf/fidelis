@@ -25,7 +25,7 @@ You can install the development version from [GitHub](https://github.com/) with:
 devtools::install_github("joshua-ruf/fidelis")
 ```
 
-#### New to R?
+### New to R?
 
 Follow these steps to get R and the fidelis package installed on Windows:
 
@@ -158,7 +158,7 @@ prior <- dates_df[col == 'prior', effper] %>%
 # also convert them to SQL friendly format with usdate()
 ```
 
-Finally, we'll run the query, calculating the sum of spend and members, by period, product, and region.
+Finally, we'll run the query, calculating the sum of spend and members, by period, product, and region. Since Greenplum is a distributed system most aggregations will be faster in Greenplum than R, especially as the size of the data increases. Bottom line: do as much of our calculations in SQL as you can.
 
 ```{r}
 df_aggregated <- fidelis::query(
@@ -184,7 +184,7 @@ df_aggregated <- fidelis::query(
 head(df_aggregated, 10)
 ```
 
-Great! One major limitation of this approach is that error handling can be quite difficult; a query will return an error but often the output does not fully display the error message. This problem lead to `madlib()`, a function that prepares the dynamic query but instead of sending it to the Greenplum database, it prints it to the console. Easier to view, and potentially copy the query into another program for more thorough debugging. 
+Great! One major limitation of this approach is that error handling can be quite difficult; a query will return an error but often the output does not fully display the error message. This problem lead to `madlib()`, a function that prepares the dynamic query but rather than send it to the Greenplum database, it prints to console. This makes it possible to copy and paste the query into another program for more thorough debugging. 
 
 ```{r}
 fidelis::madlib(
@@ -204,7 +204,7 @@ fidelis::madlib(
   ",
   current = current,
   prior = prior
-  
+
 )
 ```
 
@@ -261,3 +261,19 @@ df_wide %>%
 ![final_table](./man/figures/final_table.png)
 
 To view all `fidelis` functions, simply run `help(package = 'fidelis')`. To learn more about a specific function run `?` followed by the function name (i.e. `?currency.auto`).
+
+## Rmarkdown Templates
+
+Included in the fidelis package are two Rmarkdown templates that you can use to make html reports, `dashboard` and `fidelis_toc`. They can easily be accessed in RStudio by going to:<br>
+<br>
+File >> New File >> R Markdown... >> From Template<br>
+<br>
+Once there, choose the template you'd like to use, optionally change the name and directory and then click OK.
+
+The `dashboard` template creates a data dashboard using the `flexdashboard` package. A basic report might look like this:
+
+![dashboard](./inst/rmarkdown/templates/dashboard/dashboard_example.png)
+
+The `fidelis_toc` template creates a report with a floating table of contents. It's a nice alternative to regular Rmarkdown tabs, especially when a report needs many tabs. Without modification the template would create an html report like this:
+
+![fidelis_toc](./inst/rmarkdown/templates/fidelis_toc/fidelis_toc_example.png)
