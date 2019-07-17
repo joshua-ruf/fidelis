@@ -272,8 +272,8 @@ Once there, choose the template you'd like to use, optionally change the name an
 
 The `dashboard` template creates a data dashboard using the `flexdashboard` package. A basic report might look like this:
 
-![dashboard](./man/figures/dashboard_example.png)
+<img src="./man/figures/dashboard_example.png" width="900" /><br>
 
 The `fidelis_toc` template creates a report with a floating table of contents. It's a nice alternative to regular Rmarkdown tabs, especially when a report needs many tabs. Without modification the template would create an html report like this:
 
-![fidelis_toc](./man/figures/fidelis_toc_example.png)
+<img src="./man/figures/fidelis_toc_example.png" width="900" />
