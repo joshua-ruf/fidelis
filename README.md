@@ -111,11 +111,11 @@ fidelis::send_to_database(df, name = 'temptable')
 
 fidelis::query("select * from temptable limit 5;")
 #>         date product region    spend members
-#> 1 2018-08-01       C      a 535.7888     196
-#> 2 2017-12-01       F      a 353.1572     158
-#> 3 2019-04-01       B      b 416.9239     101
-#> 4 2018-08-01       E      b 406.6713     112
-#> 5 2018-11-01       F      b 680.2930     112
+#> 1 2018-10-01       D      a 149.1301     131
+#> 2 2018-02-01       A      b 165.3701     111
+#> 3 2019-06-01       C      b 134.9524     130
+#> 4 2018-10-01       F      b 326.3985     146
+#> 5 2017-11-01       B      c 710.5134     119
 # to run a SQL query pass sql code as a string through fidelis::query()
 # assign to R object to save results
 ```
@@ -146,7 +146,7 @@ df_limited <- fidelis::query(
 unique(df_limited[, c('product', 'region')])
 #>   product region
 #> 1       A      d
-#> 2       B      d
+#> 7       B      d
 # test to make sure the dynamic where clause was successful!
 ```
 
@@ -240,16 +240,16 @@ df_aggregated <- fidelis::query(
 
 head(df_aggregated, 10)
 #>        col product region     spend members
-#> 1  current       F      c 2241.5716     435
-#> 2    prior       F      d 1419.1404     484
-#> 3    prior       A      a 1469.2592     406
-#> 4    prior       F      b 1410.1541     539
-#> 5  current       F      b 1713.6208     473
-#> 6    prior       E      a 1410.9738     397
-#> 7  current       C      d  960.7075     378
-#> 8  current       C      b 1150.3683     423
-#> 9  current       F      a 1355.1076     520
-#> 10   prior       A      c 1147.3549     407
+#> 1  current       F      a 1696.1716     412
+#> 2    prior       A      c 2029.2999     376
+#> 3    prior       F      b 1332.6193     429
+#> 4  current       F      b 1101.7608     489
+#> 5    prior       F      c 2026.0957     481
+#> 6  current       F      d 2400.1502     459
+#> 7    prior       A      b  759.0853     512
+#> 8  current       F      c 1436.4422     414
+#> 9    prior       A      a 1777.6572     381
+#> 10   prior       F      d 2382.7138     343
 ```
 
 Great\! One major limitation of this approach is that error handling can
@@ -350,7 +350,7 @@ df_wide %>%
   htmltools::knit_print.html() #this is necessary for use with with results='asis'
 ```
 
-![final\_table](./man/figures/final_table.png)
+<img src='man/figures/final_table.png' /><br>
 
 To view all `fidelis` functions, simply run `help(package = 'fidelis')`.
 To learn more about a specific function run `?` followed by the function
@@ -368,11 +368,11 @@ click OK.
 The `dashboard` template creates a data dashboard using the
 `flexdashboard` package. A basic report might look like this:
 
-<img src="./man/figures/dashboard_example.png" width="900" /><br>
+<img src='man/figures/dashboard_example.png' width="900" /><br>
 
 The `fidelis_toc` template creates a report with a floating table of
 contents. It’s a nice alternative to regular Rmarkdown tabs, especially
 when a report needs many tabs. Without modification the template would
 create an html report like this:
 
-<img src="./man/figures/fidelis_toc_example.png" width="900" />
+<img src='man/figures/fidelis_toc_example.png' width="900" />

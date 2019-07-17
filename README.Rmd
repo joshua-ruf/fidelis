@@ -258,7 +258,8 @@ df_wide %>%
   htmltools::knit_print.html() #this is necessary for use with with results='asis'
 ```
 
-![final_table](./man/figures/final_table.png)
+
+<img src='man/figures/final_table.png' /><br>
 
 To view all `fidelis` functions, simply run `help(package = 'fidelis')`. To learn more about a specific function run `?` followed by the function name (i.e. `?currency.auto`).
 
@@ -272,8 +273,9 @@ Once there, choose the template you'd like to use, optionally change the name an
 
 The `dashboard` template creates a data dashboard using the `flexdashboard` package. A basic report might look like this:
 
-<img src="./man/figures/dashboard_example.png" width="900" /><br>
+<img src='man/figures/dashboard_example.png' width="900" /><br>
 
 The `fidelis_toc` template creates a report with a floating table of contents. It's a nice alternative to regular Rmarkdown tabs, especially when a report needs many tabs. Without modification the template would create an html report like this:
 
-<img src="./man/figures/fidelis_toc_example.png" width="900" />
+<img src='man/figures/fidelis_toc_example.png' width="900" />
+
