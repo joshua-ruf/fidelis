@@ -1,10 +1,10 @@
 ---
-title: "R + Greenplum + Excel Tutorial"
+title: "R, Greenplum, and Excel Integration"
 author: "Joshua Ruf"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{R, Greenplum, and Excel Integration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=F}
 library(fidelis) # also attaches data.table
 library(openxlsx) # R and Excel integration
 library(tidyverse)
@@ -48,8 +48,8 @@ To Begin we need a few things:<br>
 
 ```{r}
 fidelis::greenplum_connect(ask=F)
-# create greenplum connection object, see ?fidelis::greenplum_connect() for more information
-# once we've created a connection object with this function, query() automatically uses that connection to query
+# create greenplum connection object that fidelis::query() automatically uses to connect with greenplum
+# see ?fidelis::greenplum_connect() for more information
 
 wb <- openxlsx::loadWorkbook('Weekly_Cost_Utilization_by_Paid_Date_TEMPLATE.xlsx')
 # create a wb workbook binding object for the template file
@@ -193,8 +193,9 @@ Take a look at the workbook: `r sprintf("professional_raw_%s.xlsx", gsub('-', ''
 Finally, let's say we want to bypass Excel altogether and instead create an html-based table, perhaps even color-coded. As an example we'll create a series of tables for each LOB for only professional claims. Part of the usefulness of this approach is the ability to loop through each LOB.
 
 ```{r}
-final_effper <- lubridate::add_with_rollback(e1 = lubridate::round_date(Sys.Date(), 'months'), e2 = months(-4))
-# lets look back such that the final effper still gives three complete months between now and the final day in that month.
+final_effper <- lubridate::add_with_rollback(e1 = lubridate::round_date(Sys.Date(), 'months'),
+                                             e2 = months(-4))
+# infer the final effper by subtracting four months and rounding down to the first day of the month
 
 months <- 3 # use a three month rolling window
 
@@ -253,7 +254,7 @@ display_table <- function(i){
     .[order(-avg_cost_per_week_var)] %>% #order in descending avg_cost_per_week_var
     dplyr::mutate(
       avg_cost_per_week_prior = color_bar('lightblue')(avg_cost_per_week_prior),
-      avg_cost_per_week_current = color_bar('lightblue')(avg_cost_per_week_current), #note: color_bar returns a function
+      avg_cost_per_week_current = color_bar('lightblue')(avg_cost_per_week_current), #color_bar returns a function
       avg_cost_per_week_var = red_green_tiles.r(avg_cost_per_week_var),
       avg_cost_per_week_var_pct = red_green_text.r(avg_cost_per_week_var_pct)
       ) %>% # add color formatting
@@ -265,17 +266,17 @@ display_table <- function(i){
       align = c(rep('l', 1), rep('r', ncol(D)-1)) #specify alignment
       ) %>% # kable is part of the knitr package
     kableExtra::kable_styling(
-      full_width = T, #make the table fill the page hoirzontally, probably best as there are 12 data columns
+      full_width = T, #table will fill the page hoirzontally, probably best as there are 12 data columns
       protect_latex = F, #seems useful for formattable coloring
       position = "center", #center table
-      bootstrap_options = c('condensed', 'hover') #i like condense as it saves space and hover makes it easy to read
+      bootstrap_options = c('condensed', 'hover') #see bootstrap options in kableExtra
       ) %>% #kableExtra package is an extension to knitr's kable
     kableExtra::column_spec(1, bold = T) %>% # bold the first column
     kableExtra::add_header_above(c(' ' = 1,
                        'Cost/ Week' = 4,
                        'Claims/ Week' = 4,
                        'Cost/ Claim' = 4)) %>% # add header above with the true column names
-    htmltools::knit_print.html() # very important, to be used with Rmarkdown chunk option: results='asis'
+    htmltools::knit_print.html() # very important, use with Rmarkdown chunk option: results='asis'
   
 }
 ```

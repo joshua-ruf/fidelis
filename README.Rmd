@@ -22,7 +22,8 @@ You can install the development version from [GitHub](https://github.com/) with:
 
 ```{r, eval = F}
 # install.packages("devtools")
-devtools::install_github("joshua-ruf/fidelis")
+devtools::install_github("joshua-ruf/fidelis",
+                         build_vignettes = T)
 ```
 
 ### New to R?
@@ -49,7 +50,9 @@ if(Sys.info()['sysname'] == 'Windows' && !devtools::find_rtools()){
 **Fourth**, install fidelis from Github.
 
 ```{r, eval = F}
-devtools::install_github('joshua-ruf/fidelis', dependencies = T)
+devtools::install_github('joshua-ruf/fidelis',
+                         dependencies = T,
+                         build_vignettes = T)
 ```
 
 **Fifth**, install [tidyverse](https://www.tidyverse.org/) and [openxlsx](https://www.rdocumentation.org/packages/openxlsx/versions/4.1.0.1). This is optional, but both are highly useful packages.
@@ -123,8 +126,10 @@ df_limited <- fidelis::query(
   ",
   product = products,
   region = regions
-
-) # note how dynamic inputs are added, they must be named after the SQL text and surrounded by "%" in the SQL code
+)
+# note how dynamic inputs are added:
+# they must be named after the SQL text and surrounded by "%" in the SQL code
+# see `?fidelis::query` for more information
 
 unique(df_limited[, c('product', 'region')])
 # test to make sure the dynamic where clause was successful!
@@ -228,7 +233,7 @@ for(n in fidelis::names_with(names(df_wide), with = 'spend', without = 'pct')){
 Be sure to specify `results='asis'` as an option in the following Rmarkdown chunk for best results.
 
 ```{r results='asis', eval = F}
-left_cols <- 2 #specify how many of the left most columns are left aligned (the rest are right algined)
+left_cols <- 2 #specify how manyb left most columns should be left aligned (the rest are right algined)
 
 df_wide %>%
   dplyr::mutate(
@@ -279,3 +284,6 @@ The `fidelis_toc` template creates a report with a floating table of contents. I
 
 <img src='man/figures/fidelis_toc_example.PNG' width="900" />
 
+## Vignettes
+
+I've written a brief tutorial outlining how to use R in tandem with Excel and Greenplum. Run `browseVignettes('fidelis')` to view the html output, as well as the source code if desired.

@@ -12,7 +12,8 @@ You can install the development version from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("joshua-ruf/fidelis")
+devtools::install_github("joshua-ruf/fidelis",
+                         build_vignettes = T)
 ```
 
 ### New to R?
@@ -48,7 +49,9 @@ if(Sys.info()['sysname'] == 'Windows' && !devtools::find_rtools()){
 **Fourth**, install fidelis from Github.
 
 ``` r
-devtools::install_github('joshua-ruf/fidelis', dependencies = T)
+devtools::install_github('joshua-ruf/fidelis',
+                         dependencies = T,
+                         build_vignettes = T)
 ```
 
 **Fifth**, install [tidyverse](https://www.tidyverse.org/) and
@@ -111,11 +114,11 @@ fidelis::send_to_database(df, name = 'temptable')
 
 fidelis::query("select * from temptable limit 5;")
 #>         date product region    spend members
-#> 1 2017-12-01       B      a 912.7093     118
-#> 2 2019-04-01       D      a 354.6120     125
-#> 3 2018-08-01       A      b 777.6992     186
-#> 4 2017-12-01       D      b 553.4954     158
-#> 5 2018-09-01       F      b 651.6772     157
+#> 1 2017-10-01       B      a 828.9793     139
+#> 2 2019-02-01       D      a 844.2736     170
+#> 3 2018-09-01       B      b 349.9096     190
+#> 4 2018-01-01       E      b 361.2181     171
+#> 5 2019-05-01       A      c 984.0364     189
 # to run a SQL query pass sql code as a string through fidelis::query()
 # assign to R object to save results
 ```
@@ -140,13 +143,15 @@ df_limited <- fidelis::query(
   ",
   product = products,
   region = regions
-
-) # note how dynamic inputs are added, they must be named after the SQL text and surrounded by "%" in the SQL code
+)
+# note how dynamic inputs are added:
+# they must be named after the SQL text and surrounded by "%" in the SQL code
+# see `?fidelis::query` for more information
 
 unique(df_limited[, c('product', 'region')])
 #>   product region
-#> 1       A      d
-#> 3       B      d
+#> 1       B      d
+#> 2       A      d
 # test to make sure the dynamic where clause was successful!
 ```
 
@@ -240,16 +245,16 @@ df_aggregated <- fidelis::query(
 
 head(df_aggregated, 10)
 #>        col product region    spend members
-#> 1  current       F      c 1961.279     488
-#> 2    prior       F      d 1861.379     452
-#> 3    prior       A      a 1504.737     451
-#> 4    prior       F      a 1396.654     433
-#> 5    prior       A      d 1174.515     437
-#> 6    prior       F      b 2116.782     457
-#> 7  current       C      a 1680.467     424
-#> 8    prior       E      d 1226.960     425
-#> 9  current       C      c 1136.819     434
-#> 10 current       C      b 1778.835     484
+#> 1    prior       A      b 2758.185     509
+#> 2  current       C      b 1097.029     519
+#> 3  current       F      b  384.412     481
+#> 4  current       F      c 1292.346     473
+#> 5    prior       A      a 1662.053     346
+#> 6    prior       F      d 1092.730     366
+#> 7  current       C      c 1100.148     403
+#> 8    prior       E      c 2363.737     476
+#> 9    prior       F      c 1939.835     444
+#> 10 current       F      d 1568.754     434
 ```
 
 Great\! One major limitation of this approach is that error handling can
@@ -320,7 +325,7 @@ Rmarkdown chunk for best
 results.
 
 ``` r
-left_cols <- 2 #specify how many of the left most columns are left aligned (the rest are right algined)
+left_cols <- 2 #specify how manyb left most columns should be left aligned (the rest are right algined)
 
 df_wide %>%
   dplyr::mutate(
@@ -376,3 +381,9 @@ when a report needs many tabs. Without modification the template would
 create an html report like this:
 
 <img src='man/figures/fidelis_toc_example.PNG' width="900" />
+
+## Vignettes
+
+I’ve written a brief tutorial outlining how to use R in tandem with
+Excel and Greenplum. Run `browseVignettes('fidelis')` to view the html
+output, as well as the source code if desired.
