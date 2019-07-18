@@ -283,7 +283,7 @@ display_table <- function(i){
 
 Now, with `results='asis'` we can write plain html to be rendered. We must use cat when writing text or tables, and use the `br()` function from the fidelis package for line breaks. Note: graphs can be easily looped with ggplot but plotly objects are problematic and looping is not as easy. For example, the drilldown files I made use plotly but there actually isn't a loop involved, but rather good-ole copy and paste!<br>
 
-This code though will display a table for each product and dump each into a new tabbed section.
+This code though will display a table for each product and dump each into a new tabbed section. Output might differ between a vignette and standard html output.
 
 ## {.tabset .tabset-fade}
 
