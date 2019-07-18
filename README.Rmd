@@ -63,7 +63,7 @@ install.packages(c('tidyverse', 'openxlsx'))
 
 ## Example
 
-At the heart of the fidelis package is really just an efficient integration of R with Greenplum/PostgreSQL. This section will serve as the `Hello World!` to just some of these functions. Throughout this tutorial I frequently make use of `%>%` from the magrittr package. This *pipe* allows us to split code onto multiple lines, making it easier to read (and also write). For example, `sum(x, y)` returns the same value as `x %>% sum(y)`.
+At the heart of the fidelis package is really just an efficient integration of R with Greenplum/PostgreSQL. This section will serve as the `Hello World!` to just some of these functions. Throughout this tutorial I frequently make use of `%>%` from the [magrittr](https://magrittr.tidyverse.org/) package. This *pipe* allows us to split code onto multiple lines, making it easier to read (and also write). For example, `sum(x, y)` returns the same value as `x %>% sum(y)`.
 
 We'll begin by creating a data.frame and uploading it to the database. 
 

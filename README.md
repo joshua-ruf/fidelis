@@ -67,10 +67,11 @@ install.packages(c('tidyverse', 'openxlsx'))
 At the heart of the fidelis package is really just an efficient
 integration of R with Greenplum/PostgreSQL. This section will serve as
 the `Hello World!` to just some of these functions. Throughout this
-tutorial I frequently make use of `%>%` from the magrittr package. This
-*pipe* allows us to split code onto multiple lines, making it easier to
-read (and also write). For example, `sum(x, y)` returns the same value
-as `x %>% sum(y)`.
+tutorial I frequently make use of `%>%` from the
+[magrittr](https://magrittr.tidyverse.org/) package. This *pipe* allows
+us to split code onto multiple lines, making it easier to read (and also
+write). For example, `sum(x, y)` returns the same value as `x %>%
+sum(y)`.
 
 We’ll begin by creating a data.frame and uploading it to the database.
 
@@ -113,12 +114,12 @@ fidelis::send_to_database(df, name = 'temptable')
 # note: if name began with "sandbox." then the table would be permenant instead of temporary
 
 fidelis::query("select * from temptable limit 5;")
-#>         date product region    spend members
-#> 1 2017-10-01       B      a 828.9793     139
-#> 2 2019-02-01       D      a 844.2736     170
-#> 3 2018-09-01       B      b 349.9096     190
-#> 4 2018-01-01       E      b 361.2181     171
-#> 5 2019-05-01       A      c 984.0364     189
+#>         date product region      spend members
+#> 1 2018-01-01       C      a 189.051225     122
+#> 2 2019-05-01       E      a 672.625337     104
+#> 3 2019-06-01       C      b 485.056984     129
+#> 4 2018-10-01       F      b 869.956733     119
+#> 5 2018-02-01       C      c   1.482337     167
 # to run a SQL query pass sql code as a string through fidelis::query()
 # assign to R object to save results
 ```
@@ -150,8 +151,8 @@ df_limited <- fidelis::query(
 
 unique(df_limited[, c('product', 'region')])
 #>   product region
-#> 1       B      d
-#> 2       A      d
+#> 1       A      d
+#> 2       B      d
 # test to make sure the dynamic where clause was successful!
 ```
 
@@ -244,17 +245,17 @@ df_aggregated <- fidelis::query(
 )
 
 head(df_aggregated, 10)
-#>        col product region    spend members
-#> 1    prior       A      b 2758.185     509
-#> 2  current       C      b 1097.029     519
-#> 3  current       F      b  384.412     481
-#> 4  current       F      c 1292.346     473
-#> 5    prior       A      a 1662.053     346
-#> 6    prior       F      d 1092.730     366
-#> 7  current       C      c 1100.148     403
-#> 8    prior       E      c 2363.737     476
-#> 9    prior       F      c 1939.835     444
-#> 10 current       F      d 1568.754     434
+#>        col product region     spend members
+#> 1  current       F      b 1608.1111     484
+#> 2  current       F      c  713.7015     412
+#> 3    prior       F      d 2491.9417     455
+#> 4    prior       A      a 2319.2867     456
+#> 5  current       F      a 1592.5014     413
+#> 6    prior       A      c 1950.5786     449
+#> 7    prior       A      b 2123.0189     449
+#> 8    prior       F      c 1410.5791     402
+#> 9  current       F      d 1880.2631     449
+#> 10   prior       F      a 1302.8812     397
 ```
 
 Great\! One major limitation of this approach is that error handling can
